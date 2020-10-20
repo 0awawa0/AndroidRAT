@@ -46,6 +46,7 @@ class Server: Thread() {
                     val id = (packet as StartPacket).id
                     val client = if (id.isEmpty()) Client() else Client(id)
                     client.address = datagramPacket.address
+
                     client.port = datagramPacket.port
                     clients[client.id] = client
 
