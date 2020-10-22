@@ -1,5 +1,6 @@
 package ui.main
 
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.text.Font
 import server.Server
@@ -26,12 +27,28 @@ class MainView: View("ControlCenter") {
         }
     }
 
-    override val root = vbox {
+    private val taLog = textarea {
+        font = Font(14.0)
+    }
 
-        alignment = Pos.CENTER
+    override val root = hbox {
+        spacing = 10.0
+        padding = Insets(10.0, 10.0, 10.0, 10.0)
 
-        add(btStart)
-        add(btStop)
+        vbox{
+            spacing = 5.0
+
+            vbox {
+                spacing = 5.0
+                alignment = Pos.CENTER
+
+                add(btStart)
+                add(btStop)
+            }
+            add(taLog)
+        }
+
+
     }
 
     init {
@@ -42,5 +59,14 @@ class MainView: View("ControlCenter") {
         btStop.action {
             Server.instance.stopThread()
         }
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        presenter.onUndock()
+    }
+
+    fun putToLog(message: String) {
+        taLog.appendText("$message\n")
     }
 }
