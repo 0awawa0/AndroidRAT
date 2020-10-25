@@ -14,7 +14,7 @@ import java.net.SocketTimeoutException
 
 class Server private constructor(): Thread() {
 
-    private val socket = DatagramSocket()
+    private val socket = DatagramSocket(43584)
     private var running = false
 
     private val clients = HashMap<String, Client>()
@@ -27,7 +27,7 @@ class Server private constructor(): Thread() {
     override fun run() {
         this.running = true
 
-        val buffer = ByteArray(256)
+        val buffer = ByteArray(2048)
         val rcvPacket = DatagramPacket(buffer, buffer.count())
 
         this.socket.soTimeout = 1
@@ -62,6 +62,7 @@ class Server private constructor(): Thread() {
                     client.port = datagramPacket.port
                     clients[client.id] = client
 
+                    Logger.log(TAG, "Received start request")
                     this@Server.answer(client, StartPacket(id))
                 }
             }

