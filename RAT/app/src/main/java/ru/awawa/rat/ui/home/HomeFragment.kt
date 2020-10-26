@@ -37,14 +37,14 @@ class HomeFragment : Fragment() {
         })
 
         btStart.setOnClickListener {
-            val request = OneTimeWorkRequestBuilder<BackgroundWorker>().build()
+            val request = OneTimeWorkRequestBuilder<BackgroundWorker>().addTag("AndroidRATWork").build()
             this.workId = request.id
             WorkManager.getInstance(this.requireContext()).enqueue(request)
         }
 
         btStop.setOnClickListener {
             if (this.workId != null) {
-                WorkManager.getInstance(this.requireContext()).cancelWorkById(this.workId!!)
+                WorkManager.getInstance(this.requireContext()).cancelAllWorkByTag("AndroidRATWork")
             }
         }
         return root

@@ -8,8 +8,8 @@ class PacketHelper {
         fun create(buffer: ByteArray): Packet? {
 
             var packet: Packet? = null
-
-            when (buffer.sliceArray(0..3).toInt()) {
+            val magicNUmber = buffer.sliceArray(0..3).toInt()
+            when (magicNUmber) {
                 MagicNumber.START.value -> {
                     packet = StartPacket(String(buffer.sliceArray(4 until buffer.count())))
                 }

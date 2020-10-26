@@ -2,6 +2,7 @@ package ru.awawa.rat.helper
 
 import android.content.Context
 import java.lang.Exception
+import java.util.*
 
 class Preferences private constructor(context: Context) {
 
@@ -36,6 +37,18 @@ class Preferences private constructor(context: Context) {
             } catch (ex: TypeCastException) {
                 null
             }
+        }
+
+        fun <T>set(field: PreferencesField, value: T) {
+            try {
+                when (field) {
+                    PreferencesField.ID -> {
+                        val editor = instance?.sharedPreferences?.edit()
+                        editor?.putString(field.name, value as? String)
+                        editor?.apply()
+                    }
+                }
+            } catch (ex: TypeCastException) {}
         }
     }
 }

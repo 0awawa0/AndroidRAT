@@ -12,5 +12,9 @@ fun Int.toByteArray(): ByteArray {
 
 fun ByteArray.toInt(): Int {
     if (this.count() < 4) return 0
-    return this[0].toInt() or this[1].toInt().shl(8) or this[2].toInt().shl(16) or this[3].toInt().shl(24)
+    var result = this[3].toInt().shl(24) and 0xff000000.toInt()
+    result = result or (this[2].toInt().shl(16) and 0xff0000)
+    result = result or (this[1].toInt().shl(8) and 0xff00)
+    result = result or (this[0].toInt() and 0xff)
+    return result
 }
