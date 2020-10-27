@@ -1,10 +1,7 @@
 package server
 
 import helper.Logger
-import helper.protocol.MagicNumber
-import helper.protocol.Packet
-import helper.protocol.PacketHelper
-import helper.protocol.StartPacket
+import helper.protocol.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.net.DatagramPacket
@@ -56,14 +53,23 @@ class Server private constructor(): Thread() {
             when (packet.magicNumber) {
                 MagicNumber.START -> {
                     val id = (packet as StartPacket).id
-                    val client = if (id.isEmpty()) Client() else Client(id)
+                    val client = if (id.isBlank()) { Client() }
+                    else { Client(id) }
+
                     client.address = datagramPacket.address
 
                     client.port = datagramPacket.port
                     clients[client.id] = client
 
                     Logger.log(TAG, "Received start request")
-                    this@Server.answer(client, StartPacket(id))
+                    this@Server.answer(client, StartPacket(client.id))
+                }
+
+                MagicNumber.PHONE_INFO -> {
+                    val id = (packet as PhoneInfoPacket).id
+                    val info = packet.info
+
+                    Logger.log(TAG, "Received data from $id:\n$info")
                 }
             }
         }

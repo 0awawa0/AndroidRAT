@@ -75,12 +75,13 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
     private fun sleep() {
 
         if (state.connectionState == State.ConnectionState.CONNECTING) {
+            this.state.setStateWaiting()
             val buffer = StartPacket(Preferences.get(Preferences.PreferencesField.ID) ?: "").data
             val packet = DatagramPacket(buffer, buffer.size)
             packet.address = state.serverAddress
             packet.port = 43584
 
-            socket.send(packet)
+            this.socket.send(packet)
         }
 
         Log.w(TAG, "Nothing received...")

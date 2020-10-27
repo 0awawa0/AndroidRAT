@@ -2,6 +2,7 @@ package ui.main
 
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import server.Server
 import tornadofx.*
@@ -29,6 +30,13 @@ class MainView: View("ControlCenter") {
 
     private val taLog = textarea {
         font = Font(14.0)
+
+        this.maxHeight = Double.MAX_VALUE
+        this.maxWidth = Double.MAX_VALUE
+        vboxConstraints {
+            vgrow = Priority.ALWAYS
+            fitToParentWidth()
+        }
     }
 
     override val root = hbox {
@@ -46,6 +54,10 @@ class MainView: View("ControlCenter") {
                 add(btStop)
             }
             add(taLog)
+
+            vboxConstraints {
+                fitToParentWidth()
+            }
         }
 
 

@@ -6,7 +6,7 @@ import java.net.InetAddress
 class State {
 
     enum class ConnectionState {
-        DISABLED, CONNECTING, CONNECTED
+        DISABLED, CONNECTING, WAITING, CONNECTED
     }
 
     var connectionState: ConnectionState = ConnectionState.DISABLED
@@ -31,5 +31,9 @@ class State {
 
     fun setStateConnected() {
         this.connectionState = ConnectionState.CONNECTED
+    }
+
+    fun setStateWaiting() {
+        this.connectionState = ConnectionState.WAITING
     }
 }
