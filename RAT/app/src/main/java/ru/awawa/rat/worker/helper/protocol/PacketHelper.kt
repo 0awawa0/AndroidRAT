@@ -23,6 +23,13 @@ class PacketHelper {
                     val info = data.substring(index + 1)
                     packet = PhoneInfoPacket(id, info)
                 }
+
+                MagicNumber.KEEP_ALIVE.value -> {
+                    val data = buffer.sliceArray(4 until buffer.count())
+                    val index = data.indexOf(0)
+                    val id = String(buffer.sliceArray(4 until index))
+                    packet = KeepAlivePacket(id)
+                }
             }
 
             return packet

