@@ -2,9 +2,12 @@ package ui.main
 
 import helper.LogListener
 import helper.Logger
+import server.Client
+import server.Server
+import server.ServerStateListener
 
 
-class MainPresenter(private val view: MainView): LogListener {
+class MainPresenter(private val view: MainView): LogListener, ServerStateListener {
 
     companion object {
         const val TAG = "MainPresenter"
@@ -16,10 +19,18 @@ class MainPresenter(private val view: MainView): LogListener {
         view.putToLog(message)
     }
 
-    init { Logger.registerListener(this) }
+    override fun onClientsListChanged(clients: List<Client>) {
+        view.updateTable(clients)
+    }
+
+    init {
+        Logger.registerListener(this)
+        Server.instance.registerListener(this)
+    }
 
     fun onUndock() {
         Logger.unregisterListener(this)
+        Server.instance.unregisterListener(this)
         Logger.log(TAG, "Unregistered listener")
     }
 }

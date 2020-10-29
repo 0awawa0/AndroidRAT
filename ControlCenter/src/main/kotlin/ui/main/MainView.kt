@@ -4,8 +4,11 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
+import server.Client
 import server.Server
 import tornadofx.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainView: View("ControlCenter") {
@@ -32,7 +35,34 @@ class MainView: View("ControlCenter") {
         font = Font(14.0)
 
         this.maxHeight = Double.MAX_VALUE
-        this.maxWidth = Double.MAX_VALUE
+        vboxConstraints {
+            vgrow = Priority.ALWAYS
+            fitToParentWidth()
+        }
+    }
+
+    private val tblClients = tableview<Client> {
+
+        minWidth = 200.0
+        maxWidth = Double.MAX_VALUE
+        readonlyColumn("ID", Client::id)
+        readonlyColumn("Address", Client::address).cellFormat {
+            text = it?.hostAddress
+        }
+        readonlyColumn("Port", Client::port).cellFormat {
+            text = it.toString()
+        }
+        readonlyColumn("Last check in", Client::lastCheckIn).cellFormat {
+            val dateFormat = SimpleDateFormat("dd.MM.YYYY HH:mm:ss")
+            text = dateFormat.format(Date(it))
+        }
+        readonlyColumn("State", Client::state).cellFormat {
+            text = when (it) {
+                Client.State.DISCONNETED -> "Disconnected"
+                Client.State.CONNETED -> "Connected"
+            }
+        }
+
         vboxConstraints {
             vgrow = Priority.ALWAYS
             fitToParentWidth()
@@ -45,7 +75,6 @@ class MainView: View("ControlCenter") {
 
         vbox{
             spacing = 5.0
-
             vbox {
                 spacing = 5.0
                 alignment = Pos.CENTER
@@ -60,7 +89,9 @@ class MainView: View("ControlCenter") {
             }
         }
 
+        add(tblClients)
 
+        tblClients.fitToParentWidth()
     }
 
     init {
@@ -80,5 +111,17 @@ class MainView: View("ControlCenter") {
 
     fun putToLog(message: String) {
         taLog.appendText("$message\n")
+    }
+
+    fun updateTable(clients: List<Client>) {
+        clients.forEach {
+            for (i in 0 until tblClients.items.size) {
+                if (it.id == tblClients.items[i].id) {
+                    tblClients.items[i] = it
+                    return@forEach
+                }
+            }
+            tblClients.items.add(it)
+        }
     }
 }
