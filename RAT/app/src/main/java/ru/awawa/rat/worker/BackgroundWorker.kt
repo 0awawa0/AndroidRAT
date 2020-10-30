@@ -64,6 +64,20 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
                         this.state.serverAddress, this.state.serverPort
                 ))
             }
+
+            MagicNumber.KEEP_ALIVE -> {
+
+            }
+
+            MagicNumber.PHONE_INFO -> {
+                val id = (packet as PhoneInfoPacket).id
+                if (id != this.state.id) {
+                    return
+                }
+
+                val pckt = PhoneInfoPacket(id, BuildInfo.getInfo())
+                this.socket.send(DatagramPacket(pckt.data, pckt.data.size, datagramPacket.address, datagramPacket.port))
+            }
         }
     }
 

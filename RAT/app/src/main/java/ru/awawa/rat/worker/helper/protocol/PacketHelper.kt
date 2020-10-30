@@ -10,9 +10,9 @@ class PacketHelper {
             var packet: Packet? = null
             when (buffer.sliceArray(0..3).toInt()) {
                 MagicNumber.START.value -> {
-                    val data = buffer.sliceArray(4 until buffer.count())
-                    val index = data.indexOf(0)
-                    val id = String(buffer.sliceArray(4 until index))
+                    val data = String(buffer.sliceArray(4 until buffer.count()))
+                    val index = data.indexOf("\n")
+                    val id = data.substring(0 until index)
                     packet = StartPacket(id)
                 }
 
@@ -25,9 +25,9 @@ class PacketHelper {
                 }
 
                 MagicNumber.KEEP_ALIVE.value -> {
-                    val data = buffer.sliceArray(4 until buffer.count())
-                    val index = data.indexOf(0)
-                    val id = String(buffer.sliceArray(4 until index))
+                    val data = String(buffer.sliceArray(4 until buffer.count()))
+                    val index = data.indexOf("\n")
+                    val id = data.substring(0 until index)
                     packet = KeepAlivePacket(id)
                 }
             }

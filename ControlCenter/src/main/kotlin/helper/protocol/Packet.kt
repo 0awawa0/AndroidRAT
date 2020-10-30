@@ -11,7 +11,7 @@ interface Packet {
 class StartPacket(val id: String): Packet {
 
     override val magicNumber = MagicNumber.START
-    override val data: ByteArray = magicNumber.value.toByteArray() + id.toByteArray(Charset.forName("UTF-8"))
+    override val data: ByteArray = magicNumber.value.toByteArray() + "$id\n".toByteArray(Charset.forName("UTF-8"))
 }
 
 class PhoneInfoPacket(val id: String, val info: String): Packet {
@@ -23,5 +23,5 @@ class PhoneInfoPacket(val id: String, val info: String): Packet {
 class KeepAlivePacket(val id: String): Packet {
 
     override val magicNumber = MagicNumber.KEEP_ALIVE
-    override val data: ByteArray = magicNumber.value.toByteArray() + id.toByteArray(Charset.forName("UTF-8"))
+    override val data: ByteArray = magicNumber.value.toByteArray() + "$id\n".toByteArray(Charset.forName("UTF-8"))
 }

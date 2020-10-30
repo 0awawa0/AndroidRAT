@@ -66,6 +66,13 @@ class Server private constructor(): Thread() {
 
     fun unregisterListener(listener: ServerStateListener) { listeners.remove(listener) }
 
+    fun requestPhoneInfo(client: Client) {
+        val packet = PhoneInfoPacket(client.id, "")
+        if (client.address != null) {
+            socket.send(DatagramPacket(packet.data, packet.data.size, client.address!!, client.port))
+        }
+    }
+
     private fun processRequest(datagramPacket: DatagramPacket) {
 
         val packet = PacketHelper.create(datagramPacket.data) ?: return

@@ -31,6 +31,14 @@ class MainView: View("ControlCenter") {
         }
     }
 
+    private val btPhoneInfo = button {
+        text = "Get phone info"
+        font = Font(14.0)
+        borderpaneConstraints {
+            alignment = Pos.CENTER
+        }
+    }
+
     private val taLog = textarea {
         font = Font(14.0)
 
@@ -75,13 +83,27 @@ class MainView: View("ControlCenter") {
 
         vbox{
             spacing = 5.0
-            vbox {
+
+            hbox {
                 spacing = 5.0
                 alignment = Pos.CENTER
 
-                add(btStart)
-                add(btStop)
+                vbox {
+                    spacing = 5.0
+                    alignment = Pos.CENTER
+
+                    add(btStart)
+                    add(btStop)
+                }
+
+                vbox {
+                    spacing = 5.0
+                    alignment = Pos.CENTER
+
+                    add(btPhoneInfo)
+                }
             }
+
             add(taLog)
 
             vboxConstraints {
@@ -101,6 +123,11 @@ class MainView: View("ControlCenter") {
 
         btStop.action {
             Server.instance.stopThread()
+        }
+
+        btPhoneInfo.action {
+            val selectedClient = tblClients.selectedItem ?: return@action
+            Server.instance.requestPhoneInfo(selectedClient)
         }
     }
 
