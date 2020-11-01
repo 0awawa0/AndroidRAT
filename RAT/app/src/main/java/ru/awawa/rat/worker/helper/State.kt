@@ -24,6 +24,9 @@ class State {
     var serverPort: Int = 0
     private set
 
+    var lastServerCheckIn: Long = 0L
+    private set
+
     private var lastKeepAlive: Long = 0L
     private var lastStart: Long = 0L
 
@@ -59,5 +62,9 @@ class State {
     fun needToSendStartRequest(): Boolean {
         return Date().time - this.lastStart > CONNECTION_CHECK_INTERVAL
                 && (this.connectionState == ConnectionState.CONNECTING || this.connectionState == ConnectionState.WAITING)
+    }
+
+    fun onKeepAliveReceived() {
+        this.lastServerCheckIn = Date().time
     }
 }

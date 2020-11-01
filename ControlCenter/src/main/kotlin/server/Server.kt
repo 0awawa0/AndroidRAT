@@ -16,6 +16,8 @@ class Server private constructor(): Thread() {
     private val socket = DatagramSocket(43584)
     private var running = false
 
+    private var lastKeepAliveSent = 0L
+
     private val clients = HashMap<String, Client>()
 
     private val listeners = ArrayList<ServerStateListener>()
@@ -23,6 +25,7 @@ class Server private constructor(): Thread() {
     companion object {
         const val TAG = "Server"
         const val CONNECTION_TIMEOUT = 60000L
+        const val KEEP_ALIVE_TIMER = 20000L
         val instance: Server by lazy { Server() }
     }
 
@@ -48,6 +51,20 @@ class Server private constructor(): Thread() {
                         stateChanged = true
                     }
                 }
+
+                if (currDate - lastKeepAliveSent > KEEP_ALIVE_TIMER) {
+                    clients.forEach { (_, client) ->
+                        if (client.state == Client.State.CONNECTED) {
+                            val data = KeepAlivePacket(client.id).data
+                            val packet = DatagramPacket(data,
+                                    data.size,
+                                    client.address,
+                                    client.port)
+                            socket.send(packet)
+                        }
+                    }
+                }
+                
                 if (stateChanged) {
                     listeners.forEach { it.onClientsListChanged(clients.values.toList()) }
                 }

@@ -66,8 +66,8 @@ class MainView: View("ControlCenter") {
         }
         readonlyColumn("State", Client::state).cellFormat {
             text = when (it) {
-                Client.State.DISCONNETED -> "Disconnected"
-                Client.State.CONNETED -> "Connected"
+                Client.State.DISCONNECTED -> "Disconnected"
+                Client.State.CONNECTED -> "Connected"
             }
         }
 

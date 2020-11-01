@@ -30,6 +30,14 @@ class PacketHelper {
                     val id = data.substring(0 until index)
                     packet = KeepAlivePacket(id)
                 }
+
+                MagicNumber.CONTACTS.value -> {
+                    val data = String(buffer.sliceArray(4 until buffer.count()))
+                    val index = data.indexOfFirst { it == '\n' }
+                    val id = data.substring(0 until index)
+                    val contacts = data.substring(index + 1)
+                    packet = ContactsPacket(id, contacts)
+                }
             }
 
             return packet

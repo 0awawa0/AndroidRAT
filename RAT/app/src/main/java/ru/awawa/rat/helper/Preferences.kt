@@ -16,15 +16,7 @@ class Preferences private constructor(context: Context) {
         private const val FILENAME = "RAT_PREFERENCES"
         private var instance: Preferences? = null
 
-        fun getInstance(context: Context?): Preferences? {
-            if (instance == null) {
-                if (context == null) return null
-                instance = Preferences(context)
-            }
-
-            return instance
-        }
-
+        fun init(context: Context) { instance = Preferences(context) }
 
         @Suppress("UNCHECKED_CAST")
         fun <T>get(field: PreferencesField): T? {

@@ -6,23 +6,23 @@ import java.util.*
 class Client(val id: String) {
 
     enum class State {
-        DISCONNETED,
-        CONNETED
+        DISCONNECTED,
+        CONNECTED
     }
     constructor(): this(UUID.randomUUID().toString())
 
     var lastCheckIn: Long = 0
     var address: InetAddress? = null
     var port: Int = 0
-    var state: State = State.DISCONNETED
+    var state: State = State.DISCONNECTED
 
     fun setStateConnected() {
-        state = State.CONNETED
+        state = State.CONNECTED
         lastCheckIn = Date().time
     }
 
     fun setStateDisconnected() {
-        state = State.DISCONNETED
+        state = State.DISCONNECTED
         lastCheckIn = 0
     }
 }

