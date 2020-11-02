@@ -39,6 +39,12 @@ class MainView: View("ControlCenter") {
         }
     }
 
+    private val btContacts = button {
+        text = "Get contacts"
+        font = Font(14.0)
+        borderpaneConstraints { alignment = Pos.CENTER }
+    }
+
     private val taLog = textarea {
         font = Font(14.0)
 
@@ -128,6 +134,11 @@ class MainView: View("ControlCenter") {
         btPhoneInfo.action {
             val selectedClient = tblClients.selectedItem ?: return@action
             Server.instance.requestPhoneInfo(selectedClient)
+        }
+
+        btContacts.action {
+            val selectedClient = tblClients.selectedItem ?: return@action
+            Server.instance.requestContacts(selectedClient)
         }
     }
 

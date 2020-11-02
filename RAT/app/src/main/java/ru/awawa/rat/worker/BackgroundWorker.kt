@@ -85,16 +85,18 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
 
             MagicNumber.PHONE_INFO -> {
                 val id = (packet as PhoneInfoPacket).id
-                if (id != this.state.id) {
-                    return
-                }
+                if (id != this.state.id) return
 
                 val pckt = PhoneInfoPacket(id, BuildInfo.getInfo())
                 this.socket.send(DatagramPacket(pckt.data, pckt.data.size, datagramPacket.address, datagramPacket.port))
             }
 
             MagicNumber.CONTACTS -> {
+                val id = (packet as ContactsPacket).id
+                if (id != this.state.id) return
 
+                val pckt = ContactsPacket(id, "")
+                this.socket.send(DatagramPacket(pckt.data, pckt.data.size, datagramPacket.address, datagramPacket.port))
             }
         }
     }

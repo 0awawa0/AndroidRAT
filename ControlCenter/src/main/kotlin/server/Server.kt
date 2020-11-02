@@ -90,6 +90,13 @@ class Server private constructor(): Thread() {
         }
     }
 
+    fun requestContacts(client: Client) {
+        val packet = ContactsPacket(client.id, "")
+        if (client.address != null) {
+            socket.send(DatagramPacket(packet.data, packet.data.size, client.address!!, client.port))
+        }
+    }
+
     private fun processRequest(datagramPacket: DatagramPacket) {
 
         val packet = PacketHelper.create(datagramPacket.data) ?: return
