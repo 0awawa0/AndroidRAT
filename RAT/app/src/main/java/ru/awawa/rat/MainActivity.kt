@@ -3,6 +3,7 @@ package ru.awawa.rat
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         permissions.forEach {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED) {
+                if (checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(permissions, 100)
                 }
             }

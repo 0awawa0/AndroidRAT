@@ -107,6 +107,7 @@ class MainView: View("ControlCenter") {
                     alignment = Pos.CENTER
 
                     add(btPhoneInfo)
+                    add(btContacts)
                 }
             }
 

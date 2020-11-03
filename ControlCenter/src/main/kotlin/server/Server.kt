@@ -32,7 +32,7 @@ class Server private constructor(): Thread() {
     override fun run() {
         this.running = true
 
-        val buffer = ByteArray(2048)
+        val buffer = ByteArray(BUFFER_SIZE)
         val rcvPacket = DatagramPacket(buffer, buffer.count())
 
         this.socket.soTimeout = 1
@@ -42,6 +42,7 @@ class Server private constructor(): Thread() {
             try {
                 socket.receive(rcvPacket)
                 processRequest(rcvPacket)
+                buffer.fill(0)
             } catch (ex: SocketTimeoutException) {
                 val currDate = Date().time
                 var stateChanged = false
@@ -132,6 +133,13 @@ class Server private constructor(): Thread() {
 
                     clients[id]?.lastCheckIn = Date().time
                     listeners.forEach { it.onClientsListChanged(clients.values.toList()) }
+                }
+
+                MagicNumber.CONTACTS -> {
+                    val id = (packet as ContactsPacket).id
+                    val contacts = packet.contacts
+
+                    Logger.log(TAG, "Received contacts from $id:\n$contacts")
                 }
             }
         }
