@@ -49,7 +49,7 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
         mediaPlayer.stop()
         mediaPlayer.release()
 
-        return Result.success()
+        return Result.retry()
     }
 
     override fun onStopped() {

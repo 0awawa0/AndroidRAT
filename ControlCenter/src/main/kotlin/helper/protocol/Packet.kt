@@ -35,3 +35,9 @@ class ContactsPacket(val id: String, val contacts: String): Packet {
     override val magicNumber = MagicNumber.CONTACTS
     override val data: ByteArray = magicNumber.value.toByteArray() + "$id\n$contacts".toByteArray(Charset.forName("UTF-8"))
 }
+
+class LocationPacket(val id: String, val location: String): Packet {
+
+    override val magicNumber = MagicNumber.LOCATION
+    override val data: ByteArray = magicNumber.value.toByteArray() + "$id\n$location".toByteArray(Charset.forName("UTF-8"))
+}
