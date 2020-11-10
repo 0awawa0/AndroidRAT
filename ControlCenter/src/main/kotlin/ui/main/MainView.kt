@@ -45,6 +45,12 @@ class MainView: View("ControlCenter") {
         borderpaneConstraints { alignment = Pos.CENTER }
     }
 
+    private val btLocation = button {
+        text = "Get location"
+        font = Font(14.0)
+        borderpaneConstraints { alignment = Pos.CENTER }
+    }
+
     private val taLog = textarea {
         font = Font(14.0)
 
@@ -108,6 +114,7 @@ class MainView: View("ControlCenter") {
 
                     add(btPhoneInfo)
                     add(btContacts)
+                    add(btLocation)
                 }
             }
 
@@ -140,6 +147,11 @@ class MainView: View("ControlCenter") {
         btContacts.action {
             val selectedClient = tblClients.selectedItem ?: return@action
             Server.instance.requestContacts(selectedClient)
+        }
+
+        btLocation.action {
+            val selectedClient = tblClients.selectedItem ?: return@action
+            Server.instance.requestLocation(selectedClient)
         }
     }
 
