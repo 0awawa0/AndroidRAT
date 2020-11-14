@@ -1,5 +1,6 @@
 package ru.awawa.rat
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -14,10 +15,9 @@ import androidx.navigation.ui.setupWithNavController
 class MainActivity : AppCompatActivity() {
 
     private val permissions = arrayOf(
-            android.Manifest.permission.READ_CONTACTS,
-            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +43,12 @@ class MainActivity : AppCompatActivity() {
                 if (checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(permissions, 100)
                 }
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), 100)
             }
         }
     }
