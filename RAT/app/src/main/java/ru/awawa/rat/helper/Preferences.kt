@@ -1,8 +1,6 @@
 package ru.awawa.rat.helper
 
 import android.content.Context
-import java.lang.Exception
-import java.util.*
 
 class Preferences private constructor(context: Context) {
 

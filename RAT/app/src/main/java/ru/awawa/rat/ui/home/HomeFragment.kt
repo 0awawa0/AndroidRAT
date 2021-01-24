@@ -1,18 +1,14 @@
 package ru.awawa.rat.ui.home
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.app.JobIntentService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import ru.awawa.rat.R
 import java.util.*
 
