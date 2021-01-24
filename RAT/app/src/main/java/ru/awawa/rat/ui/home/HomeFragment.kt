@@ -14,8 +14,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import ru.awawa.rat.R
-import ru.awawa.rat.worker.BackgroundService
-import ru.awawa.rat.worker.BackgroundWorker
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -41,20 +39,9 @@ class HomeFragment : Fragment() {
 
         btStart.setOnClickListener {
 
-            JobIntentService.enqueueWork(requireContext(), BackgroundService::class.java, 100, Intent())
-            if (this.workId != null) {
-                WorkManager.getInstance(this.requireContext()).cancelAllWorkByTag("AndroidRATWork")
-            }
-
-            val request = OneTimeWorkRequestBuilder<BackgroundWorker>().addTag("AndroidRATWork").build()
-            this.workId = request.id
-            WorkManager.getInstance(this.requireContext()).enqueue(request)
         }
 
         btStop.setOnClickListener {
-            if (this.workId != null) {
-                WorkManager.getInstance(this.requireContext()).cancelAllWorkByTag("AndroidRATWork")
-            }
         }
         return root
     }
