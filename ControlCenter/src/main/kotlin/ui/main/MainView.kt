@@ -5,7 +5,6 @@ import javafx.geometry.Pos
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import server.Client
-import server.Server
 import tornadofx.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -132,26 +131,26 @@ class MainView: View("ControlCenter") {
 
     init {
         btStart.action {
-            Server.instance.start()
+            presenter.startServer()
         }
 
         btStop.action {
-            Server.instance.stopThread()
+            presenter.stopServer()
         }
 
         btPhoneInfo.action {
             val selectedClient = tblClients.selectedItem ?: return@action
-            Server.instance.requestPhoneInfo(selectedClient)
+            GlobalState.serverThread?.requestPhoneInfo(selectedClient)
         }
 
         btContacts.action {
             val selectedClient = tblClients.selectedItem ?: return@action
-            Server.instance.requestContacts(selectedClient)
+            GlobalState.serverThread?.requestContacts(selectedClient)
         }
 
         btLocation.action {
             val selectedClient = tblClients.selectedItem ?: return@action
-            Server.instance.requestLocation(selectedClient)
+            GlobalState.serverThread?.requestLocation(selectedClient)
         }
     }
 

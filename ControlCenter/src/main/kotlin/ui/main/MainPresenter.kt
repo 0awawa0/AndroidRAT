@@ -3,8 +3,8 @@ package ui.main
 import helper.LogListener
 import helper.Logger
 import server.Client
-import server.Server
 import server.ServerStateListener
+import server.ServerThread
 
 
 class MainPresenter(private val view: MainView): LogListener, ServerStateListener {
@@ -23,14 +23,22 @@ class MainPresenter(private val view: MainView): LogListener, ServerStateListene
         view.updateTable(clients)
     }
 
-    init {
+    fun startServer() {
         Logger.registerListener(this)
-        Server.instance.registerListener(this)
+        GlobalState.serverThread = ServerThread()
+        GlobalState.serverThread?.registerListener(this)
+        GlobalState.serverThread?.start()
+    }
+
+    fun stopServer() {
+        GlobalState.serverThread?.unregisterListener(this)
+        GlobalState.serverThread?.stopThread()
     }
 
     fun onUndock() {
         Logger.unregisterListener(this)
-        Server.instance.unregisterListener(this)
+        GlobalState.serverThread?.unregisterListener(this)
+        Logger.unregisterListener(this)
         Logger.log(TAG, "Unregistered listener")
     }
 }
