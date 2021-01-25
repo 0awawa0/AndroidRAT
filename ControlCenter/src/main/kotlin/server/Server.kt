@@ -19,8 +19,6 @@ class ServerThread: Thread() {
 
     private var lastKeepAliveSent = 0L
 
-//    private val clients = HashMap<String, Client>()
-
     private val listeners = ArrayList<ServerStateListener>()
 
     companion object {
@@ -29,7 +27,7 @@ class ServerThread: Thread() {
         const val KEEP_ALIVE_TIMER = 20000L
     }
 
-    private var clients = ArrayList<SocketChannel>()
+    private var clients = HashMap<String, SocketChannel>()
 
     override fun run() {
         running = true
@@ -43,8 +41,16 @@ class ServerThread: Thread() {
             val client = socket.accept()
             if (client != null) {
                 Logger.log(TAG, "Received connection ${client.localAddress}")
-                client.write(ByteBuffer.wrap("Hello!".toByteArray()))
-                clients.add(client)
+                val uuid = UUID.randomUUID().toString()
+                client.socket().getOutputStream().write(uuid.toByteArray())
+                clients[uuid] = client
+            }
+
+            clients.forEach {
+                val packet = it.value.socket().getInputStream().readBytes()
+                if (packet.isNotEmpty()) {
+                    Logger.log(TAG, "Received from ${it.key}:\n${packet.decodeToString()}")
+                }
             }
         }
         Logger.log(TAG, "Server stopped")
