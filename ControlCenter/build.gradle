@@ -1,11 +1,11 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
-    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 javafx {
-    version = "11.0.2"
+    version = "15.0.1"
     modules = [ 'javafx.controls' ]
 }
 
@@ -17,6 +17,8 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     jcenter()
+
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 compileKotlin {
@@ -24,10 +26,19 @@ compileKotlin {
 }
 
 dependencies {
+
+    def ktorVersion = "1.5.1"
+
+    implementation "io.ktor:ktor-server-core:$ktorVersion"
+    implementation "io.ktor:ktor-server-netty:$ktorVersion"
+    implementation "io.ktor:ktor-network:$ktorVersion"
+
+    implementation 'com.google.firebase:firebase-admin:6.13.0'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0-M1'
 
-    implementation 'no.tornado:tornadofx:1.7.20'
+    implementation 'no.tornado:tornadofx:2.0.0-SNAPSHOT'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

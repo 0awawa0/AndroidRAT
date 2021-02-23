@@ -1,2 +1,4 @@
 /ControlCenter/build/
 /ControlCenter/.gradle/
+/ControlCenter/fcm_token.json
+ControlCenter/out

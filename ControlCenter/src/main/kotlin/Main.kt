@@ -1,7 +1,12 @@
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.messaging.FcmOptions
 import javafx.stage.Stage
 import tornadofx.App
 import tornadofx.launch
 import ui.main.MainView
+import java.io.FileInputStream
 import kotlin.system.exitProcess
 
 class Application: App(MainView::class) {
@@ -27,5 +32,9 @@ class Application: App(MainView::class) {
 
 
 fun main(args: Array<String> = emptyArray()) {
+    val token = FileInputStream("./fcm_token.json")
+    val options = FirebaseOptions.builder().setCredentials(GoogleCredentials.fromStream(token)).build()
+    FirebaseApp.initializeApp(options)
+
     launch<Application>(args)
 }

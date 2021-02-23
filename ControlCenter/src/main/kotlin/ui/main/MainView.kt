@@ -64,23 +64,8 @@ class MainView: View("ControlCenter") {
 
         minWidth = 200.0
         maxWidth = Double.MAX_VALUE
-        readonlyColumn("ID", Client::id)
-        readonlyColumn("Address", Client::address).cellFormat {
-            text = it?.hostAddress
-        }
-        readonlyColumn("Port", Client::port).cellFormat {
-            text = it.toString()
-        }
-        readonlyColumn("Last check in", Client::lastCheckIn).cellFormat {
-            val dateFormat = SimpleDateFormat("dd.MM.YYYY HH:mm:ss")
-            text = dateFormat.format(Date(it))
-        }
-        readonlyColumn("State", Client::state).cellFormat {
-            text = when (it) {
-                Client.State.DISCONNECTED -> "Disconnected"
-                Client.State.CONNECTED -> "Connected"
-            }
-        }
+        readonlyColumn("UUID", Client::uuid)
+        readonlyColumn("Token", Client::token)
 
         vboxConstraints {
             vgrow = Priority.ALWAYS
@@ -166,7 +151,7 @@ class MainView: View("ControlCenter") {
     fun updateTable(clients: List<Client>) {
         clients.forEach {
             for (i in 0 until tblClients.items.size) {
-                if (it.id == tblClients.items[i].id) {
+                if (it.uuid == tblClients.items[i].uuid) {
                     tblClients.items[i] = it
                     return@forEach
                 }
