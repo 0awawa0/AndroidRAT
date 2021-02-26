@@ -1,11 +1,13 @@
 package ru.awawa.rat.helper
 
 import android.content.Context
+import androidx.core.content.edit
 
 class Preferences private constructor(context: Context) {
 
     enum class PreferencesField {
-        ID
+        UUID,
+        TOKEN
     }
 
     private val sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
@@ -20,8 +22,11 @@ class Preferences private constructor(context: Context) {
         fun <T>get(field: PreferencesField): T? {
             return try {
                 when (field) {
-                    PreferencesField.ID -> {
-                        instance?.sharedPreferences?.getString("ID", "") as? T
+                    PreferencesField.UUID -> {
+                        instance?.sharedPreferences?.getString("UUID", "") as? T
+                    }
+                    PreferencesField.TOKEN -> {
+                        instance?.sharedPreferences?.getString("TOKEN", "") as? T
                     }
                 }
             } catch (ex: TypeCastException) {
@@ -32,10 +37,11 @@ class Preferences private constructor(context: Context) {
         fun <T>set(field: PreferencesField, value: T) {
             try {
                 when (field) {
-                    PreferencesField.ID -> {
-                        val editor = instance?.sharedPreferences?.edit()
-                        editor?.putString(field.name, value as? String)
-                        editor?.apply()
+                    PreferencesField.UUID -> {
+                        instance?.sharedPreferences?.edit{ putString(field.name, value as? String) }
+                    }
+                    PreferencesField.TOKEN -> {
+                        instance?.sharedPreferences?.edit { putString(field.name, value as? String) }
                     }
                 }
             } catch (ex: TypeCastException) {}

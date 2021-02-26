@@ -1,20 +1,15 @@
 package ru.awawa.rat.ui.home
 
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import ru.awawa.rat.BuildConfig
 import ru.awawa.rat.R
-import ru.awawa.rat.service.RatForegroundService
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -38,13 +33,7 @@ class HomeFragment : Fragment() {
             textView.text = it
         })
 
-        btStart.setOnClickListener {
-            ContextCompat.startForegroundService(requireContext(), Intent(requireContext(), RatForegroundService::class.java))
-        }
 
-        btStop.setOnClickListener {
-            requireActivity().stopService(Intent(requireContext(), RatForegroundService::class.java))
-        }
         return root
     }
 }
