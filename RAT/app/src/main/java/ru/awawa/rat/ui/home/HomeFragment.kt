@@ -9,7 +9,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import ru.awawa.rat.Application
 import ru.awawa.rat.R
+import ru.awawa.rat.server.Interactor
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -26,8 +28,14 @@ class HomeFragment : Fragment() {
                 ViewModelProvider(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
         val textView: TextView = root.findViewById(R.id.text_home)
-        val btStart: Button = root.findViewById(R.id.btStart)
-        val btStop: Button = root.findViewById(R.id.btStop)
+
+        root.findViewById<Button>(R.id.btStart).setOnClickListener {
+            Interactor.init()
+        }
+
+        root.findViewById<Button>(R.id.btStop).setOnClickListener {
+            Interactor.sendToken()
+        }
 
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
