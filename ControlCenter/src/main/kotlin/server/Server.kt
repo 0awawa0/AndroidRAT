@@ -15,6 +15,7 @@ import java.nio.ByteBuffer
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -34,10 +35,11 @@ class ServerThread: Thread() {
 
     private val socket = ServerSocket(33455)
 
-    private var clients = HashMap<String, Client>()
+    private var clients = ConcurrentHashMap<String, Client>()
 
     override fun run() {
 
+        Logger.log(tag, "Server started")
         running = true
         while (running) {
             val client = socket.accept()
@@ -49,10 +51,69 @@ class ServerThread: Thread() {
                     val input = client.getInputStream().bufferedReader()
 
                     while (true) {
-                        val line = input.readLine()
-                        Logger.log(tag, "Received $line")
-                        output.write("line\n".toByteArray())
-                        Logger.log(tag, "Sent back")
+                        val line = input.readLine().split(dataDivider)
+
+                        when (line[0]) {
+                            "connect" -> {
+                                var uuid = line.getOrElse(1) { "" }
+                                val token = line.getOrElse(2) { "" }
+
+                                if (token.isBlank()) {
+                                    output.write("error${dataDivider}Token required\n".toByteArray())
+                                    continue
+                                }
+
+                                uuid = uuid.ifBlank { UUID.randomUUID().toString() }
+
+                                clients[uuid] = Client(uuid, token)
+
+                                Logger.log(
+                                    tag,
+                                    "connect satisfied from ${client.remoteSocketAddress}, dedicated uuid: $uuid"
+                                )
+                                output.write("ok${dataDivider}$uuid\n".toByteArray())
+
+                                listeners.forEach { it.onClientsListChanged(clients.values.toList()) }
+                            }
+
+                            "contacts" -> {
+                                val uuid = line.getOrElse(1) { "" }
+                                val contacts = line.getOrElse(2) { "" }
+
+                                if (uuid.isBlank()) {
+                                    output.write("error${dataDivider}uuid required\n".toByteArray())
+                                    continue
+                                }
+
+                                Logger.log(
+                                    tag,
+                                    "contacts received from $uuid: $contacts"
+                                )
+                                output.write("ok\n".toByteArray())
+                            }
+
+                            "phone_info" -> {
+                                val uuid = line.getOrElse(1) { "" }
+                                val phoneInfo = line.getOrElse(2) { "" }
+
+                                if (uuid.isBlank()) {
+                                    output.write("error${dataDivider}uuid required\n".toByteArray())
+                                    continue
+                                }
+
+                                var fullInfo = phoneInfo
+                                while (input.ready()) {
+                                    fullInfo += "${input.readLine()}\n"
+                                }
+
+                                Logger.log(
+                                    tag,
+                                    "phone info received from $uuid: $fullInfo"
+                                )
+
+                                output.write("ok\n".toByteArray())
+                            }
+                        }
                     }
                 }
                 Logger.log(tag, "Client disconnected: ${client.remoteSocketAddress}")
@@ -60,6 +121,8 @@ class ServerThread: Thread() {
 
             sleep(10)
         }
+
+        Logger.log(tag, "Server stopped")
     }
 
     fun stopThread() { running = false }
@@ -70,20 +133,12 @@ class ServerThread: Thread() {
 
     fun unregisterListener(listener: ServerStateListener) { listeners.remove(listener) }
 
-    fun requestPhoneInfo(client: Client) {
-
-    }
-
-    fun requestContacts(client: Client) {
-        val msg = Message.builder().putData("command", "contacts").setToken(client.token).build()
+    fun sendCommand(client: Client, command: String, additionalData: String = "") {
+        val msg = Message.builder()
+            .putData("command", command)
+            .putData("additionalData", additionalData)
+            .setToken(client.token)
+            .build()
         FirebaseMessaging.getInstance().send(msg)
-    }
-
-    fun requestLocation(client: Client) {
-
-    }
-
-    private fun answer(client: Client, packet: Packet) {
-
     }
 }

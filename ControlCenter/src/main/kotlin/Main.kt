@@ -21,7 +21,7 @@ class Application: App(MainView::class) {
     override fun start(stage: Stage) {
         super.start(stage)
 
-        stage.minWidth = 500.0
+        stage.minWidth = 800.0
         stage.minHeight = 275.0
 
         stage.setOnCloseRequest {

