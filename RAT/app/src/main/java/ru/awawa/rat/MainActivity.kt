@@ -16,9 +16,10 @@ import androidx.navigation.ui.setupWithNavController
 class MainActivity : AppCompatActivity() {
 
     private val permissions = arrayOf(
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_SMS
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

