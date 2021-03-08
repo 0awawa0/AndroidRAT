@@ -1,12 +1,15 @@
 package ru.awawa.rat
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -19,7 +22,10 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.READ_CONTACTS,
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.READ_SMS
+        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+        Manifest.permission.READ_SMS,
+        Manifest.permission.READ_PHONE_NUMBERS,
+        Manifest.permission.READ_PHONE_STATE
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

