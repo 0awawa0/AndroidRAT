@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -27,20 +28,14 @@ class HomeFragment : Fragment() {
         homeViewModel =
                 ViewModelProvider(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-        val textView: TextView = root.findViewById(R.id.text_home)
 
-        root.findViewById<Button>(R.id.btStart).setOnClickListener {
-            Interactor.init()
-        }
+        val etIp = root.findViewById<EditText>(R.id.etIp)
+        val etPort = root.findViewById<EditText>(R.id.etPort)
 
-        root.findViewById<Button>(R.id.btStop).setOnClickListener {
+        root.findViewById<Button>(R.id.btConnect).setOnClickListener {
+            Interactor.init(etIp.text.toString(), etPort.text.toString().toInt())
             Interactor.sendToken()
         }
-
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-
 
         return root
     }

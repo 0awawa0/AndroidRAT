@@ -8,7 +8,9 @@ class Preferences private constructor(context: Context) {
     enum class PreferencesField {
         UUID,
         TOKEN,
-        LAST_LOCATION
+        LAST_LOCATION,
+        IP,
+        PORT
     }
 
     private val sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
@@ -32,6 +34,12 @@ class Preferences private constructor(context: Context) {
                     PreferencesField.LAST_LOCATION -> {
                         instance?.sharedPreferences?.getString("LAST_LOCATION", "") as? T
                     }
+                    PreferencesField.IP -> {
+                        instance?.sharedPreferences?.getString("IP", "10.0.2.2") as? T
+                    }
+                    PreferencesField.PORT -> {
+                        instance?.sharedPreferences?.getInt("PORT", 33455) as? T
+                    }
                 }
             } catch (ex: TypeCastException) {
                 null
@@ -42,13 +50,19 @@ class Preferences private constructor(context: Context) {
             try {
                 when (field) {
                     PreferencesField.UUID -> {
-                        instance?.sharedPreferences?.edit{ putString(field.name, value as? String) }
+                        instance?.sharedPreferences?.edit{ putString(field.name, value.toString()) }
                     }
                     PreferencesField.TOKEN -> {
-                        instance?.sharedPreferences?.edit { putString(field.name, value as? String) }
+                        instance?.sharedPreferences?.edit { putString(field.name, value.toString()) }
                     }
                     PreferencesField.LAST_LOCATION -> {
-                        instance?.sharedPreferences?.edit { putString(field.name, value as? String) }
+                        instance?.sharedPreferences?.edit { putString(field.name, value.toString()) }
+                    }
+                    PreferencesField.IP -> {
+                        instance?.sharedPreferences?.edit { putString(field.name, value.toString()) }
+                    }
+                    PreferencesField.PORT -> {
+                        instance?.sharedPreferences?.edit { putInt(field.name, value as Int) }
                     }
                 }
             } catch (ex: TypeCastException) {}

