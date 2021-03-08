@@ -29,7 +29,7 @@ import java.util.logging.Logger
 object Interactor {
 
     private const val TAG = "Interactor"
-    private const val SERVER_IP = "192.168.0.101"
+    private const val SERVER_IP = "10.0.2.2"
     private const val SERVER_PORT = 33455
 
     private const val dataDivider = ":|:"

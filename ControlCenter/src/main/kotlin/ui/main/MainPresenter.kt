@@ -5,6 +5,7 @@ import helper.Logger
 import server.Client
 import server.ServerStateListener
 import server.ServerThread
+import tornadofx.runLater
 
 
 class MainPresenter(private val view: MainView): LogListener, ServerStateListener {
@@ -16,11 +17,15 @@ class MainPresenter(private val view: MainView): LogListener, ServerStateListene
     override val id = Logger.listenerID
 
     override fun onMessageLogged(message: String) {
-        view.putToLog(message)
+        runLater {
+            view.putToLog(message)
+        }
     }
 
     override fun onClientsListChanged(clients: List<Client>) {
-        view.updateTable(clients)
+        runLater {
+            view.updateTable(clients)
+        }
     }
 
     fun startServer() {
